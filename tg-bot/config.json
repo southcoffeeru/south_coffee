@@ -1,0 +1,4 @@
+{
+    "api_token": "token",
+    "db_connection_string": "postgresql://south_coffee_user:pass@postgres:5432/south_coffee"
+}

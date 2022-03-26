@@ -1,0 +1,33 @@
+# This compose file uses profiles. Compose minimum version 1.28
+version: "3.6"
+
+services:
+  tg-bot:
+    build: tg-bot
+    # depends_on:
+    #   postgres-migrations:
+    #     condition: service_completed_successfully
+  postgres:
+    image: postgres:13.6-bullseye
+    environment:
+      PGUSER: south_coffee_user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: south_coffee_user
+      POSTGRES_DB: south_coffee
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U south_coffee_user -d south_coffee"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+  postgres-migrations:
+    image: amacneil/dbmate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://south_coffee_user:pass@postgres:5432/south_coffee?sslmode=disable"
+    command: ['up']
+    volumes:
+      - ./db:/db
