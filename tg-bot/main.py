@@ -1,9 +1,8 @@
-import logging
-
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.ext import Updater, Dispatcher
 
 import database
+import logger
 import settings
 from handlers import start, echo, caps
 
@@ -11,8 +10,7 @@ from handlers import start, echo, caps
 def main():
     settings.init()
     database.init()
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+    logger.init()
     updater = Updater(token=settings    .CONFIG['api_token'], use_context=True)
     dispatcher: Dispatcher = updater.dispatcher
 

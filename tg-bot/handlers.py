@@ -1,20 +1,27 @@
-from telegram import Update
+from telegram import Update, User
 from telegram.parsemode import ParseMode
 from telegram.ext import CallbackContext
 
 import database
+import logger
 
-from models import BotTask
+from models import BotTask, UserAccount
 from utils import format_message
 
-
 def start(update: Update, context: CallbackContext):
+    user : User = update.message.from_user
+
+    user_account = UserAccount(user_id=user.id, user_state='registered')
+    database.session.add(user_account)
+    database.session.commit()
+
     greeting: BotTask = database.session.query(BotTask).filter(
         BotTask.bot_task_type == 'greeting').first()
     context.bot.send_message(
         chat_id=update.effective_chat.id, text=format_message(
-            greeting, update.message.from_user),
+            greeting, user),
         parse_mode=ParseMode.MARKDOWN)
+    logger.logger.info('user {}({}) registered'.format(user.name, user.id))
 
 
 def echo(update: Update, context: CallbackContext):
