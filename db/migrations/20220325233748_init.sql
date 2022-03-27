@@ -3,19 +3,19 @@
 CREATE SCHEMA IF NOT EXISTS southcoffee;
 
 CREATE  TABLE southcoffee.action_type ( 
-	action_type_id       integer DEFAULT 0 NOT NULL  ,
+	action_type_id       serial NOT NULL  ,
 	action_type_name     varchar(250)  NOT NULL  ,
 	CONSTRAINT pk_action_type PRIMARY KEY ( action_type_id )
  );
 
 CREATE  TABLE southcoffee.bot_task_type ( 
-	bot_task_type_id     integer DEFAULT 0 NOT NULL  ,
+	bot_task_type_id     serial NOT NULL  ,
 	bot_task_type_name   varchar(100)  NOT NULL  ,
 	CONSTRAINT pk_bot_task_type PRIMARY KEY ( bot_task_type_id )
  );
 
 CREATE  TABLE southcoffee.user_account ( 
-	user_id              integer DEFAULT 0 NOT NULL  ,
+	user_id              serial NOT NULL  ,
 	created_at           timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
 	last_updated_at      timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
 	user_name            varchar(100)  NOT NULL  ,
@@ -31,7 +31,7 @@ CREATE  TABLE southcoffee.user_account (
  );
 
 CREATE  TABLE southcoffee.users_match ( 
-	match_id             integer DEFAULT 0 NOT NULL  ,
+	match_id             serial NOT NULL  ,
 	created_at           timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
 	user1_id             integer DEFAULT 0 NOT NULL  ,
 	user2_id             integer DEFAULT 0 NOT NULL  ,
@@ -40,7 +40,7 @@ CREATE  TABLE southcoffee.users_match (
  );
 
 CREATE  TABLE southcoffee.users_meeting ( 
-	meeting_id           integer DEFAULT 0 NOT NULL  ,
+	meeting_id           serial NOT NULL  ,
 	created_at           timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
 	match_id             integer DEFAULT 0 NOT NULL  ,
 	CONSTRAINT pk_users_meetings PRIMARY KEY ( meeting_id ),
@@ -48,8 +48,8 @@ CREATE  TABLE southcoffee.users_meeting (
  );
 
 CREATE  TABLE southcoffee.bot_task ( 
-	bot_task_id          integer  NOT NULL  ,
-	bot_task_name        varchar(100)  NOT NULL  ,
+	bot_task_id          serial  NOT NULL  ,
+	bot_task_name        varchar(100),
 	bot_task_title       varchar(1000)  NOT NULL  ,
 	bot_task_content     varchar(1000)  NOT NULL  ,
 	bot_task_type_id     integer  NOT NULL  ,
@@ -58,7 +58,7 @@ CREATE  TABLE southcoffee.bot_task (
  );
 
 CREATE  TABLE southcoffee.button ( 
-	button_id            integer  NOT NULL  ,
+	button_id            serial  NOT NULL  ,
 	bot_task_id          integer  NOT NULL  ,
 	button_text          varchar(250)  NOT NULL  ,
 	button_url           integer  NOT NULL  ,
@@ -67,7 +67,7 @@ CREATE  TABLE southcoffee.button (
  );
 
 CREATE  TABLE southcoffee.action_log ( 
-	action_id            integer DEFAULT 0 NOT NULL  ,
+	action_id            serial NOT NULL  ,
 	created_at           timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
 	user_id              integer DEFAULT 0 NOT NULL  ,
 	action_type_id       integer  NOT NULL  ,

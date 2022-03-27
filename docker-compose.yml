@@ -3,11 +3,10 @@ version: "3.6"
 
 services:
   tg-bot:
+    profiles: ['all', 'bot']
     build: tg-bot
-    # depends_on:
-    #   postgres-migrations:
-    #     condition: service_completed_successfully
   postgres:
+    profiles: ['all', 'db']
     image: postgres:13.6-bullseye
     environment:
       PGUSER: south_coffee_user
@@ -22,6 +21,7 @@ services:
     ports:
       - 5432:5432
   postgres-migrations:
+    profiles: ['all', 'migrations']
     image: amacneil/dbmate
     depends_on:
       postgres:
