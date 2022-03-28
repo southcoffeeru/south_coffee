@@ -2,3 +2,4 @@ python-telegram-bot
 SQLAlchemy
 psycopg2
 sqlacodegen
+pygsheets

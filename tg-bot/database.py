@@ -5,7 +5,9 @@ import settings
 
 
 def init():
-    global session
-
+    global db
     db = create_engine(settings.CONFIG['db_connection_string'])
-    session = Session(bind=db)
+
+
+def session():
+    return Session(bind=db)
