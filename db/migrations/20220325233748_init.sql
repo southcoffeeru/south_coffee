@@ -6,6 +6,7 @@ CREATE TYPE southcoffee.bot_task_type_enum AS ENUM (
     'greeting',
     'error_no_nickname',
     'form_accepted',
+    'form_updated',
     'match_message',
     'feedback_message'
 );

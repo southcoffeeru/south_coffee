@@ -4,14 +4,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import exists
 from telegram.ext import CallbackContext
 from telegram.error import TelegramError
-from telegram.parsemode import ParseMode
 
 import database
 import google_sheets
 import logger
 import settings
-from models import UserAccount, UsersMatch, UsersMeeting, BotTask
-from utils import format_message
+from models import UserAccount, UsersMatch, UsersMeeting
+from utils import send_formated_message
 
 
 def parse_new_forms(context: CallbackContext):
@@ -34,8 +33,10 @@ def parse_new_forms(context: CallbackContext):
                     ts, user_db_record.user_name, user_db_record.user_id))
                 continue
 
+            is_filled_first_time = False
             if not user_db_record.form_filled_at:
                 user_db_record.form_filled_at = ts
+                is_filled_first_time = True
             user_db_record.form_updated_at = ts
             user_db_record.user_name = user[1]
             user_db_record.user_email = user[2]
@@ -46,14 +47,8 @@ def parse_new_forms(context: CallbackContext):
             user_db_record.user_city = user[8]
             try:
                 session.commit()
-
-                notification = session.query(BotTask).filter(
-                    BotTask.bot_task_type == 'form_accepted').first()
-                if notification:
-                    context.bot.send_message(
-                        chat_id=user_db_record.user_id, text=format_message(
-                            notification, db_user=user_db_record),
-                        parse_mode=ParseMode.MARKDOWN)
+                send_formated_message(context, user_db_record.user_id,
+                                      'form_accepted' if is_filled_first_time else 'form_updated', db_user=user_db_record)
             except IntegrityError:
                 logger.logger.error('Cant save form info to db for user {}({})'.format(
                     user_db_record.user_name, user_db_record.user_id))
@@ -86,25 +81,17 @@ def send_matchs(context: CallbackContext):
             session.rollback()
             return
 
-        notification = session.query(BotTask).filter(
-            BotTask.bot_task_type == 'match_message').first()
-
         try:
-            if notification:
-                context.bot.send_message(
-                    chat_id=match.user2_id, text=format_message(
-                        notification, db_user=match.user1),
-                    parse_mode=ParseMode.MARKDOWN)
-                meeting.user_1_delivered = True
+            send_formated_message(context, match.user2_id,
+                                  'match_message', db_user=match.user1)
+            meeting.user_1_delivered = True
         except TelegramError as err:
             logger.logger.error('Could not deliver meeting {}, for user 1 {}: {}'.format(
                 meeting.meeting_id, match.user1_id, err.message))
 
         try:
-            context.bot.send_message(
-                chat_id=match.user1_id, text=format_message(
-                    notification, db_user=match.user2),
-                parse_mode=ParseMode.MARKDOWN)
+            send_formated_message(context, match.user1_id,
+                                  'match_message', db_user=match.user2)
             meeting.user_2_delivered = True
         except TelegramError:
             logger.logger.error('Could not deliver meeting {}, for user 2 {}: {}'.format(

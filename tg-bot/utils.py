@@ -1,7 +1,11 @@
 import string
 
 from telegram import User
+from telegram.ext import CallbackContext
 from models import BotTask, UserAccount
+from telegram.parsemode import ParseMode
+
+import database
 
 
 def format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = None):
@@ -25,15 +29,15 @@ def format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = N
                 'TG_USER_FULL_NAME':    tg_user.full_name,
             })
 
-        if db_user: 
+        if db_user:
             macroses.update({
-                'DB_USER_NICKNAME':db_user.user_tg_nickname,
-                'DB_USER_NAME':db_user.user_name,
-                'DB_USER_TYPE_OF_ACTIVITY':db_user.user_type_of_activity,
-                'DB_USER_INTERESTS':db_user.user_interests,
-                'DB_USER_ATTRACTIVNESS':db_user.user_attractiveness,
-                'DB_USER_CITY':db_user.user_city,
-                'DB_USER_EMAIL':db_user.user_email
+                'DB_USER_NICKNAME': db_user.user_tg_nickname,
+                'DB_USER_NAME': db_user.user_name,
+                'DB_USER_TYPE_OF_ACTIVITY': db_user.user_type_of_activity,
+                'DB_USER_INTERESTS': db_user.user_interests,
+                'DB_USER_ATTRACTIVNESS': db_user.user_attractiveness,
+                'DB_USER_CITY': db_user.user_city,
+                'DB_USER_EMAIL': db_user.user_email
             })
         return fmt.format(markup, **macroses)
 
@@ -42,3 +46,14 @@ def format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = N
     content = replace_macro(task.bot_task_content,
                             tg_user=tg_user, db_user=db_user)
     return '{}{}'.format(title, content)
+
+
+def send_formated_message(context: CallbackContext, chat_id: int, task_type: str, **kwargs):
+    session = database.session()
+    task: BotTask = session.query(BotTask).filter(
+        BotTask.bot_task_type == task_type).first()
+
+    context.bot.send_message(
+        chat_id=chat_id, text=format_message(
+            task, **kwargs),
+        parse_mode=ParseMode.MARKDOWN)

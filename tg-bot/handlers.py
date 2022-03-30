@@ -1,6 +1,5 @@
 from typing import List
 from telegram import Update, User
-from telegram.parsemode import ParseMode
 from telegram.ext import CallbackContext
 from sqlalchemy.exc import IntegrityError
 
@@ -8,7 +7,7 @@ import database
 import logger
 
 from models import BotTask, UserAccount, UsersMatch
-from utils import format_message
+from utils import send_formated_message
 from handlers_utils import admin_handler, message_handler
 
 
@@ -33,10 +32,8 @@ def start(update: Update, context: CallbackContext):
     greeting: BotTask = session.query(BotTask).filter(
         BotTask.bot_task_type == 'greeting').first()
     if greeting:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text=format_message(
-                greeting, tg_user=user, db_user=user_account),
-            parse_mode=ParseMode.MARKDOWN)
+        send_formated_message(context, update.effective_chat.id,
+                              'greeting', tg_user=user, db_user=user_account)
     else:
         logger.logger.error('No greetings messages found in bot tasks')
 

@@ -24,11 +24,14 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
 
-    delta = datetime.timedelta(seconds=15)
+    parse_forms_period = datetime.timedelta(
+        seconds=settings.CONFIG['parse_new_forms_job_period_sec'])
     dispatcher.job_queue.run_repeating(
-        parse_new_forms, delta, name='parse_new_forms')
+        parse_new_forms, parse_forms_period, name='parse_new_forms')
+    send_matches_period = datetime.timedelta(
+        seconds=settings.CONFIG['send_matches_job_period_sec'])
     dispatcher.job_queue.run_repeating(
-        send_matchs, delta, name='send_matchs')
+        send_matchs, send_matches_period, name='send_matchs')
 
     create_match_handler = CommandHandler('create_match', create_match)
     dispatcher.add_handler(create_match_handler)

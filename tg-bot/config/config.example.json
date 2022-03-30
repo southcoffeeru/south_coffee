@@ -3,5 +3,7 @@
     "db_connection_string": "postgresql://south_coffee_user:pass@postgres:5432/south_coffee",
     "google_sheets_token_path": "./config/google-sheets-token.json",
     "google_sheet_id": "SOME_SHEET_ID",
-    "log_level": "info"
+    "log_level": "info",
+    "parse_new_forms_job_period_sec": 30,
+    "send_matches_job_period_sec": 30
 }
