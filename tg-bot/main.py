@@ -8,7 +8,7 @@ import google_sheets
 import logger
 import settings
 
-from handlers import start, echo, caps
+from handlers import start, echo, create_match
 from jobs import parse_new_forms
 
 
@@ -30,8 +30,8 @@ def main():
     dispatcher.job_queue.run_repeating(
         parse_new_forms, delta, name='parse_new_forms')
 
-    caps_handler = CommandHandler('parse_forms', caps)
-    dispatcher.add_handler(caps_handler)
+    create_match_handler = CommandHandler('create_match', create_match)
+    dispatcher.add_handler(create_match_handler)
 
     updater.start_polling()
     updater.idle()
