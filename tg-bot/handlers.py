@@ -28,7 +28,6 @@ def start(update: Update, context: CallbackContext):
     except IntegrityError:
         logger.logger.error(
             'User {}({}) already registered'.format(user.name, user.id))
-    finally:
         session.rollback()
 
     greeting: BotTask = session.query(BotTask).filter(
@@ -36,15 +35,10 @@ def start(update: Update, context: CallbackContext):
     if greeting:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text=format_message(
-                greeting, user),
+                greeting, tg_user=user, db_user=user_account),
             parse_mode=ParseMode.MARKDOWN)
     else:
         logger.logger.error('No greetings messages found in bot tasks')
-
-
-def echo(update: Update, context: CallbackContext):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, text=update.message.text)
 
 
 @admin_handler
@@ -78,7 +72,7 @@ def create_match(update: Update, context: CallbackContext):
     try:
         session.add(match)
         session.commit()
-        message = 'Match for {} and {} created successfully!'.format(
+        message = 'Match for {} and {} created successfully'.format(
             users[0].user_id, users[1].user_id)
 
         logger.logger.info(message)
@@ -86,7 +80,6 @@ def create_match(update: Update, context: CallbackContext):
         message = 'Error! Could not create match in database for users {} and {}'.format(
             users[0].user_id, users[1].user_id)
         logger.logger.error(message)
-    finally:
         session.rollback()
 
     return message_handler(update, context, message)

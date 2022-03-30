@@ -8,8 +8,8 @@ import google_sheets
 import logger
 import settings
 
-from handlers import start, echo, create_match
-from jobs import parse_new_forms
+from handlers import start, create_match
+from jobs import parse_new_forms, send_matchs
 
 
 def main():
@@ -22,13 +22,13 @@ def main():
     dispatcher: Dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(echo_handler)
 
     delta = datetime.timedelta(seconds=15)
     dispatcher.job_queue.run_repeating(
         parse_new_forms, delta, name='parse_new_forms')
+    dispatcher.job_queue.run_repeating(
+        send_matchs, delta, name='send_matchs')
 
     create_match_handler = CommandHandler('create_match', create_match)
     dispatcher.add_handler(create_match_handler)

@@ -5,6 +5,7 @@ CREATE SCHEMA IF NOT EXISTS southcoffee;
 CREATE TYPE southcoffee.bot_task_type_enum AS ENUM (
     'greeting',
     'error_no_nickname',
+    'form_accepted',
     'match_message',
     'feedback_message'
 );
@@ -55,13 +56,16 @@ CREATE  TABLE southcoffee.users_match (
     user1_id             integer DEFAULT 0 NOT NULL  ,
     user2_id             integer DEFAULT 0 NOT NULL  ,
     CONSTRAINT pk_users_match PRIMARY KEY ( match_id ),
-    CONSTRAINT fk_users_match_user FOREIGN KEY ( user1_id ) REFERENCES southcoffee.user_account( user_id )   
+    CONSTRAINT fk_users_match_user_1 FOREIGN KEY ( user1_id ) REFERENCES southcoffee.user_account( user_id ),
+    CONSTRAINT fk_users_match_user_2 FOREIGN KEY ( user2_id ) REFERENCES southcoffee.user_account( user_id )
  );
 
 CREATE  TABLE southcoffee.users_meeting ( 
     meeting_id           serial NOT NULL  ,
     created_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
-    match_id             integer DEFAULT 0 NOT NULL  ,
+    match_id             integer DEFAULT 0 NOT NULL,
+    user_1_delivered     boolean,
+    user_2_delivered     boolean,
     CONSTRAINT pk_users_meetings PRIMARY KEY ( meeting_id ),
     CONSTRAINT fk_users_meetings_users_match FOREIGN KEY ( match_id ) REFERENCES southcoffee.users_match( match_id )   
  );
@@ -70,7 +74,7 @@ CREATE  TABLE southcoffee.bot_task (
     bot_task_id          serial  NOT NULL  ,
     bot_task_name        varchar(100),
     bot_task_title       varchar(1000)  NOT NULL  ,
-    bot_task_content     varchar(1000)  NOT NULL  ,
+    bot_task_content     varchar(3000)  NOT NULL  ,
     bot_task_type        southcoffee.bot_task_type_enum  NOT NULL  ,
     CONSTRAINT pk_bot_task PRIMARY KEY ( bot_task_id )   
  );
