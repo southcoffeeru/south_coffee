@@ -6,7 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 COPY ./ /app
-COPY ./config/config.json /app/config/config.json
 CMD ["sh", "-c",                                                                                                        \
      "sqlacodegen postgresql://south_coffee_user:pass@postgres:5432/south_coffee --schema southcoffee > models.py       \
       && python main.py"                                                                                                \
