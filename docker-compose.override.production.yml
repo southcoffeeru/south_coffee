@@ -1,0 +1,9 @@
+services:
+  tg-bot:
+    restart: on-failure
+    environment:
+      CONFIG_PATH: /etc/south_coffee_config/config.json
+    volumes:
+      - ${CONFIG_DIR}:/etc/south_coffee_config
+  postgres:
+    restart: on-failure

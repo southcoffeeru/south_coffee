@@ -5,6 +5,9 @@ services:
   tg-bot:
     profiles: ['all', 'bot']
     build: tg-bot
+    depends_on:
+      postgres-migrations:
+        condition: service_completed_successfully
   postgres:
     profiles: ['all', 'db']
     image: postgres:13.6-bullseye
