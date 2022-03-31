@@ -6,9 +6,9 @@ from sqlalchemy.exc import IntegrityError
 import database
 import logger
 
-from models import BotTask, UserAccount, UsersMatch
+from models import UserAccount, UsersMatch
 from utils import send_formated_message
-from handlers_utils import admin_handler, message_handler
+from handlers_utils import admin_handler, message_handler, parse_new_forms, send_new_matches
 
 
 def start(update: Update, context: CallbackContext):
@@ -75,3 +75,13 @@ def create_match(update: Update, context: CallbackContext):
         session.rollback()
 
     return message_handler(update, context, message)
+
+
+@admin_handler
+def parse_forms(update: Update, context: CallbackContext):
+    parse_new_forms(context)
+
+
+@admin_handler
+def send_all_matches(update: Update, context: CallbackContext):
+    send_new_matches(context)

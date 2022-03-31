@@ -9,7 +9,7 @@ import database
 import logger
 
 
-def format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = None):
+def __format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = None):
     def replace_macro(markup: str, tg_user: User, db_user: UserAccount) -> str:
         class BlankFormatter(string.Formatter):
             def __init__(self, default=''):
@@ -56,7 +56,7 @@ def send_formated_message(context: CallbackContext, chat_id: int, task_type: str
 
     if task:
         context.bot.send_message(
-            chat_id=chat_id, text=format_message(
+            chat_id=chat_id, text=__format_message(
                 task, **kwargs),
             parse_mode=ParseMode.MARKDOWN)
     else:

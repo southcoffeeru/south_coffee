@@ -8,8 +8,8 @@ import google_sheets
 import logger
 import settings
 
-from handlers import start, create_match
-from jobs import parse_new_forms, send_matchs
+from handlers import start, create_match, parse_forms, send_all_matches
+from jobs import parse_new_forms, send_matches_job
 
 
 def main():
@@ -31,9 +31,13 @@ def main():
     send_matches_period = datetime.timedelta(
         seconds=settings.CONFIG['send_matches_job_period_sec'])
     dispatcher.job_queue.run_repeating(
-        send_matchs, send_matches_period, name='send_matchs')
+        send_matches_job, send_matches_period, name='send_matches')
 
     create_match_handler = CommandHandler('create_match', create_match)
+    dispatcher.add_handler(create_match_handler)
+    create_match_handler = CommandHandler('parse_forms', parse_forms)
+    dispatcher.add_handler(create_match_handler)
+    create_match_handler = CommandHandler('send_all_matches', send_all_matches)
     dispatcher.add_handler(create_match_handler)
 
     updater.start_polling()
