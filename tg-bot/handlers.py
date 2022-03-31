@@ -29,13 +29,8 @@ def start(update: Update, context: CallbackContext):
             'User {}({}) already registered'.format(user.name, user.id))
         session.rollback()
 
-    greeting: BotTask = session.query(BotTask).filter(
-        BotTask.bot_task_type == 'greeting').first()
-    if greeting:
-        send_formated_message(context, update.effective_chat.id,
-                              'greeting', tg_user=user, db_user=user_account)
-    else:
-        logger.logger.error('No greetings messages found in bot tasks')
+    send_formated_message(context, update.effective_chat.id,
+                          'greeting', tg_user=user, db_user=user_account)
 
 
 @admin_handler

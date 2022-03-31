@@ -6,6 +6,7 @@ from models import BotTask, UserAccount
 from telegram.parsemode import ParseMode
 
 import database
+import logger
 
 
 def format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = None):
@@ -53,7 +54,11 @@ def send_formated_message(context: CallbackContext, chat_id: int, task_type: str
     task: BotTask = session.query(BotTask).filter(
         BotTask.bot_task_type == task_type).first()
 
-    context.bot.send_message(
-        chat_id=chat_id, text=format_message(
-            task, **kwargs),
-        parse_mode=ParseMode.MARKDOWN)
+    if task:
+        context.bot.send_message(
+            chat_id=chat_id, text=format_message(
+                task, **kwargs),
+            parse_mode=ParseMode.MARKDOWN)
+    else:
+        logger.logger.error(
+            'No {} messages found in bot tasks'.format(task_type))
