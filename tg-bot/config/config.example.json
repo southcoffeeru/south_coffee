@@ -1,6 +1,9 @@
 {
     "tg_api_token": "TOKEN",
-    "db_connection_string": "postgresql://south_coffee_user:pass@postgres:5432/south_coffee",
+    "db": {
+        "connection_string": "postgresql://south_coffee_user:pass@postgres:5432/south_coffee",
+        "query_pool_size": 30
+    },
     "google_sheets_token_path": "./config/google-sheets-token.json",
     "google_sheet_id": "SOME_SHEET_ID",
     "log_level": "info",
