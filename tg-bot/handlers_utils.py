@@ -2,28 +2,28 @@ from datetime import datetime
 
 import pygsheets
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists
 from telegram import Update, User
 from telegram.error import TelegramError
 from telegram.ext import CallbackContext
 
-import database
 import google_sheets
 import logger
 import settings
 from models import UserAccount, UsersMatch, UsersMeeting
-from utils import send_formated_message
+from utils import send_formated_message, db_handler
 
 
 def admin_handler(handler):
-    def wrap(update: Update, context: CallbackContext):
+    @db_handler
+    def wrap(update: Update, context: CallbackContext, session: Session):
         if not update.message:
             logger.logger.error(
                 'Unsupported update type for admin handler {}'.format(handler.__name__))
             return
         user: User = update.message.from_user
 
-        session = database.session()
         user_account: UserAccount = session.query(UserAccount).filter(
             UserAccount.user_id == user.id).first()
 
@@ -34,7 +34,6 @@ def admin_handler(handler):
     def __accerss_error(update: Update, context: CallbackContext):
         context.bot.send_message(
             chat_id=update.effective_chat.id, text='Oops! You don\'t have admin permissions ')
-        pass
 
     return wrap
 
@@ -44,14 +43,14 @@ def message_handler(update: Update, context: CallbackContext, message: str):
         chat_id=update.effective_chat.id, text=message)
 
 
-def parse_new_forms(context: CallbackContext):
+@db_handler
+def parse_new_forms(context: CallbackContext, session: Session):
     def read_gs_timestamp(ts: str) -> datetime:
         return datetime.strptime(ts, '%d.%m.%Y %H:%M:%S')
 
     worksheet: pygsheets.Worksheet = google_sheets.google_sheets.open_by_key(
         settings.CONFIG['google_sheet_id'])[0]
 
-    session = database.session()
     user_row: dict
     for user_row in worksheet.get_all_records():
         user = list(user_row.values())
@@ -93,8 +92,8 @@ def parse_new_forms(context: CallbackContext):
             user_db_record.user_name, user_db_record.user_id))
 
 
-def send_new_matches(context: CallbackContext):
-    session = database.session()
+@db_handler
+def send_new_matches(context: CallbackContext, session: Session):
     matchs_to_send = session.query(UsersMatch).filter(
         ~ exists().where(UsersMatch.match_id == UsersMeeting.match_id)).all()
 

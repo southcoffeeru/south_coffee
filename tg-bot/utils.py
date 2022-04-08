@@ -2,11 +2,13 @@ import string
 
 from telegram import User
 from telegram.ext import CallbackContext
-from models import BotTask, UserAccount
 from telegram.parsemode import ParseMode
+from sqlalchemy.orm import Session
 
 import database
 import logger
+
+from models import BotTask, UserAccount
 
 
 def __format_message(task: BotTask, tg_user: User = None, db_user: UserAccount = None):
@@ -49,8 +51,16 @@ def __format_message(task: BotTask, tg_user: User = None, db_user: UserAccount =
     return '{}{}'.format(title, content)
 
 
-def send_formated_message(context: CallbackContext, chat_id: int, task_type: str, **kwargs):
-    session = database.session()
+def db_handler(handler):
+    def wrap(*args, **kwargs):
+        with database.session() as session:
+            handler(*args, session, **kwargs)
+
+    return wrap
+
+
+@db_handler
+def send_formated_message(context: CallbackContext, chat_id: int, task_type: str, session: Session, **kwargs):
     task: BotTask = session.query(BotTask).filter(
         BotTask.bot_task_type == task_type).first()
 

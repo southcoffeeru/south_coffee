@@ -1,17 +1,18 @@
 from typing import List
+from requests import Session
 from telegram import Update, User
 from telegram.ext import CallbackContext
 from sqlalchemy.exc import IntegrityError
 
-import database
 import logger
 
 from models import UserAccount, UsersMatch
-from utils import send_formated_message
+from utils import send_formated_message, db_handler
 from handlers_utils import admin_handler, message_handler, parse_new_forms, send_new_matches
 
 
-def start(update: Update, context: CallbackContext):
+@db_handler
+def start(update: Update, context: CallbackContext, session: Session):
     user: User = update.message.from_user
 
     user_account = UserAccount(user_id=user.id,
@@ -20,7 +21,6 @@ def start(update: Update, context: CallbackContext):
                                user_tg_last_name=user.last_name,
                                user_tg_nickname=user.name)
     try:
-        session = database.session()
         session.add(user_account)
         session.commit()
         logger.logger.info('User {}({}) registered'.format(user.name, user.id))
@@ -34,7 +34,8 @@ def start(update: Update, context: CallbackContext):
 
 
 @admin_handler
-def create_match(update: Update, context: CallbackContext):
+@db_handler
+def create_match(update: Update, context: CallbackContext, session: Session):
     message = 'Unknown error!'
     if len(context.args) != 2:
         message = 'Error! You should specify exaclty two user ids'
@@ -49,7 +50,6 @@ def create_match(update: Update, context: CallbackContext):
             message = 'Error! Both ids should be integers'
             return message_handler(update, context, message)
 
-    session = database.session()
     users: List[UserAccount] = [session.query(UserAccount).filter(
         UserAccount.user_id == x).first() for x in context.args]
 

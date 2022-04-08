@@ -11,7 +11,6 @@ import settings
 from handlers import start, create_match, parse_forms, send_all_matches
 from jobs import parse_new_forms, send_matches_job
 
-
 def main():
     settings.init()
     database.init()
